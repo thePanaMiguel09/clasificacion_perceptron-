@@ -1,6 +1,5 @@
 import numpy as np
 import time
-import matplotlib.pyplot as plt
 
 class Perceptron:
     def __init__(self, n_entradas=3, lr=0.1, epocas=50):
