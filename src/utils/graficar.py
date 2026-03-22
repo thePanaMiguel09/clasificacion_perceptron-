@@ -28,7 +28,7 @@ def graficar(X, y, historiales, n_clases):
 
     aux2 = fig.add_subplot(122)
     for nombre_clase, historial in historiales.items():
-        idx = int(nombre_clase.split('_'[1]))
+        idx = int(nombre_clase.split('_')[1])
         aux2.plot(
             range(1, len(historial) + 1),
             historial,
