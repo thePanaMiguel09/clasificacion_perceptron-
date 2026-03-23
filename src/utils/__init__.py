@@ -1,3 +1,3 @@
-from src.utils import generarDatos
-from src.utils import exportarJSON
-from src.utils import graficar
+from src.utils.generarDatos import generarDatos
+from src.utils.exportarJSON import exportarJSON
+from src.utils.graficar import graficar, animar_plano
