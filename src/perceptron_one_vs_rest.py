@@ -11,16 +11,18 @@ class PerceptronOneVsRest:
 
     def entrenar(self, x, y):
         historiales ={}
+        historial_pesos= {}
         tiempo_total = 0.0
 
         for c, p in enumerate (self.perceptrones):
             y_binario = (y== c).astype(int)
 
-            historial, t = p.entrenar_perceptron(x, y_binario)
+            historial, snapshots, t = p.entrenar_perceptron(x, y_binario)
             historiales[f"Clase_{c}"] = historial
+            historial_pesos[f"clase_{c}"] = snapshots
             tiempo_total += t
         
-        return historiales, tiempo_total
+        return historiales, historial_pesos,  tiempo_total
     
     def predecir_uno(self, x):
         scores = [p.predecir_score(x) for p in self.perceptrones]

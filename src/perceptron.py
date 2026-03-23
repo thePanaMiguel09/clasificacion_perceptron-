@@ -20,7 +20,9 @@ class Perceptron:
 
     def entrenar_perceptron(self, x, y):
         historial_error = []
+        historial_pesos = []
         inicio = time.perf_counter()
+
 
         for epoca in range(self.epocas):
             n_errores = 0
@@ -37,9 +39,14 @@ class Perceptron:
         
             tasa_error = n_errores/ len(y)
             historial_error.append(round(tasa_error, 6))
+            historial_pesos.append({
+                "w":self.w.copy(),
+                "b":float(self.b),
+                "epoca": epoca +1
+            })
     
         tiempo_total = time.perf_counter() - inicio
-        return historial_error, tiempo_total
+        return historial_error,  historial_pesos, tiempo_total
             
 
 
