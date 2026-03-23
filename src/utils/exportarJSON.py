@@ -2,7 +2,16 @@ import json
 
 
 
-def exportarJSON(X, y, historiales, tiempo, sigma, n_clases, semilla = None, archivo= "datos.json"):
+def exportarJSON(
+        X, 
+        y, 
+        historiales, 
+        tiempo, 
+        sigma, 
+        n_clases, 
+        semilla = None,
+        pesos= None, 
+        archivo= "datos.json"):
     payload ={
         "metadata": {
             "sigma": round(float(sigma), 4),
@@ -11,6 +20,7 @@ def exportarJSON(X, y, historiales, tiempo, sigma, n_clases, semilla = None, arc
             "tiempo_segundos": round(float(tiempo), 6),
             "semilla": semilla
         },
+        "pesos": pesos,
         "error_por_epoca": historiales,
         "puntos": [
             {
