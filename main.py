@@ -1,7 +1,7 @@
-from src.utils import generarDatos, exportarJSON, graficar
+import argparse
+from src.utils import generarDatos, exportarJSON, graficar, animar_plano
 from src.perceptron import Perceptron
 from src.perceptron_one_vs_rest import PerceptronOneVsRest
-import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Perceptrón con visualización Unity")
@@ -20,13 +20,16 @@ def main():
 
     parser.add_argument("--graficar", action='store_true', help="Mostrar graficas en Python antes de exportar")
 
+    parser.add_argument("--animar",   action="store_true",
+                        help="Generar animación del plano por época")
+
     parser.add_argument("--salida", type=str, default="datos.json", help="Nombre del archivo JSON de salida")
 
     args = parser.parse_args()
 
     print(f"\n{'='*50}")
     print(f"  Perceptrón — Escenario {args.clases} clases")
-    print(f"  σ={args.sigma}  |  lr={args.lr}  |  épocas={args.epocas}")
+    print(f"  Sigma={args.sigma}  |  lr={args.lr}  |  epocas={args.epocas}")
     print(f"{'='*50}\n")
 
     print("[1/3] Generando datos..")
@@ -45,22 +48,45 @@ def main():
     print("[2/3] Entrenando modelo")
 
     if args.clases == 2:
-        model = Perceptron(epocas=args.epocas, n_entradas=3, lr= args.lr)
-        historial, tiempo = model.entrenar_perceptron(x=X, y=y)
+        model = Perceptron(n_entradas=3, lr=args.lr, epocas=args.epocas)
+        historial, historial_pesos, tiempo = model.entrenar_perceptron(x=X, y=y)
         historiales = {"clase_0": historial}
+        pesos_finales = {
+            "clase_0":{"w": model.w.tolist(), "b": float(model.b)}
+        }
     else:
         model = PerceptronOneVsRest(n_clases=3, n_entradas=3, lr=args.lr, epocas=args.epocas)
-        historiales, tiempo = model.entrenar(x=X, y=y)
+        historiales, historial_pesos, tiempo = model.entrenar(x=X, y=y)
+        pesos_finales  = {
+            f"clase_{c}":{
+                "w": p.w.tolist(),
+                "b": float(p.b)
+            }
+            for c, p in enumerate(model.perceptrones)
+        }
+
 
     error_final = list(historiales.values())[0][-1]
     print(f"Tiempo de entrenamiento: {tiempo:.4f}s | Error final: {error_final:.1%}")
 
     print("[3/3] Exportando resultados..")
 
-    exportarJSON(X=X, y=y, historiales= historiales, n_clases=args.clases, tiempo= tiempo, semilla = args.semilla, sigma=args.sigma, archivo=args.salida)
+    exportarJSON(
+        X=X, y=y,
+        historiales=historiales,
+        tiempo=tiempo,
+        sigma=args.sigma,
+        n_clases=args.clases,
+        semilla=args.semilla,
+        pesos=pesos_finales,
+        archivo=args.salida
+    )
 
     if args.graficar:
-        graficar(X, y, historiales, args.clases)
+        graficar(X, y, historiales, args.clases, pesos=pesos_finales)
+
+    if args.animar:
+        animar_plano(X, y, historial_pesos, n_clases=args.clases)
 
     print("[OK] Entrenamiento finalizado.")
 
