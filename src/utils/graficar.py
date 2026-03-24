@@ -167,4 +167,70 @@ def animar_plano(x, y, historial_pesos, n_clases, intervalo_ms=200):
     plt.tight_layout()
     plt.show()
 
+def graficar_pesos(historial_pesos, n_clases, historiales_error=None):
+
+    colores_pesos = ["royalblue",  "tomato", "mediumseagreen", "darkorange"]
+    nombres_pesos = ["w1", "w2", "w3", "b"]
+    colores_clases = ["royal_blue", "tomato", "mediumseagreen"]
+
+    if isinstance(historial_pesos, list):
+        snapshots_por_clase = {"clase_0":historial_pesos}
+    else:
+        snapshots_por_clase = historial_pesos
+
+    n_clases_reales = len(snapshots_por_clase)
+
+    fig, axes = plt.subplots(
+        n_clases_reales, 
+        1,
+        figsize=(12, 4 * n_clases_reales),
+        squeeze=False
+    )
+
+    for fila, (nombre_clase, snapshots) in enumerate(snapshots_por_clase.items()):
+        ax = axes[fila][0]
+
+        epocas = [s["epoca"] for s in snapshots]
+
+        w1 = [s["w"][0] for s in snapshots]
+        w2 = [s["w"][1] for s in snapshots]
+        w3 = [s["w"][2] for s in snapshots]
+        b  = [s["b"]    for s in snapshots]
+
+        ax.plot(epocas, w1, color=colores_pesos[0], linewidth=2,
+                label="w₁", marker="o", markersize=3)
+        ax.plot(epocas, w2, color=colores_pesos[1], linewidth=2,
+                label="w₂", marker="o", markersize=3)
+        ax.plot(epocas, w3, color=colores_pesos[2], linewidth=2,
+                label="w₃", marker="o", markersize=3)
+        ax.plot(epocas, b,  color=colores_pesos[3], linewidth=2,
+                label="b (bias)", marker="o", markersize=3,
+                linestyle="--")
+
+        ax.set_xlabel("Época")
+        ax.set_ylabel("Valor del parámetro")
+        ax.set_title(f"Evolución de pesos — {nombre_clase}")
+        ax.legend(loc="upper right")
+        ax.grid(True, alpha=0.3)
+
+
+        if historiales_error is not None and nombre_clase in historiales_error:
+            ax2 = ax.twinx()
+            errores = historiales_error[nombre_clase]
+            ax2.plot(
+                range(1, len(errores) + 1),
+                errores,
+                color="gray", linewidth=1.5,
+                label="Error", linestyle=":",
+                alpha=0.7
+            )
+            ax2.set_ylabel("Tasa de error", color="gray")
+            ax2.tick_params(axis="y", labelcolor="gray")
+            ax2.set_ylim(0, max(errores) * 1.5 if max(errores) > 0 else 1)
+            ax2.legend(loc="upper left")
+
+    plt.tight_layout()
+    plt.savefig("pesos_por_epoca.png", dpi=120)
+    plt.show()
+    print("[OK] Gráfica de pesos guardada como pesos_por_epoca.png")
     

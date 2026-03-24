@@ -1,5 +1,5 @@
 import argparse
-from src.utils import generarDatos, exportarJSON, graficar, animar_plano
+from src.utils import generarDatos, exportarJSON, graficar, animar_plano, graficar_pesos
 from src.perceptron import Perceptron
 from src.perceptron_one_vs_rest import PerceptronOneVsRest
 
@@ -22,6 +22,8 @@ def main():
 
     parser.add_argument("--animar",   action="store_true",
                         help="Generar animación del plano por época")
+    
+    parser.add_argument("--pesos", action="store_true", help="Graficar evolución de pesos por época")
 
     parser.add_argument("--salida", type=str, default="datos.json", help="Nombre del archivo JSON de salida")
 
@@ -89,6 +91,14 @@ def main():
         animar_plano(X, y, historial_pesos, n_clases=args.clases)
 
     print("[OK] Entrenamiento finalizado.")
+
+    if args.pesos:
+        graficar_pesos(
+            historial_pesos,
+            n_clases=args.clases,
+            historiales_error= historiales
+        )
+
 
 if __name__ == "__main__":
     main()
