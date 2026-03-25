@@ -73,37 +73,46 @@ def main():
 
     print(f" {len(y)} puntos generados ({args.clases} clases × {args.n} puntos)")
 
-
     carpeta_salida = os.path.dirname(os.path.abspath(args.salida))
     archivo_progreso = os.path.join(carpeta_salida, "progreso.json")
 
     with open(archivo_progreso, "w") as f:
-        json.dump({"entrenando": False, "epoca_actual": 0, "epocas_total": args.epocas, "clases":{}}, f)
+        json.dump(
+            {
+                "entrenando": False,
+                "epoca_actual": 0,
+                "epocas_total": args.epocas,
+                "clases": {},
+            },
+            f,
+        )
 
     print("[2/3] Entrenando modelo")
 
     if args.clases == 2:
         model = Perceptron(n_entradas=3, lr=args.lr, epocas=args.epocas)
-        historial, historial_pesos, tiempo = model.entrenar_perceptron(x=X, y=y, archivo_progreso=archivo_progreso, nombre_clase="clase_0")
+        historial, historial_pesos, tiempo = model.entrenar_perceptron(
+            x=X, y=y, archivo_progreso=archivo_progreso, nombre_clase="clase_0"
+        )
         historiales = {"clase_0": historial}
         pesos_finales = {"clase_0": {"w": model.w.tolist(), "b": float(model.b)}}
     else:
         model = PerceptronOneVsRest(
             n_clases=3, n_entradas=3, lr=args.lr, epocas=args.epocas
         )
-        historiales, historial_pesos, tiempo = model.entrenar(x=X, y=y, archivo_progreso=archivo_progreso)
+        historiales, historial_pesos, tiempo = model.entrenar(
+            x=X, y=y, archivo_progreso=archivo_progreso
+        )
         pesos_finales = {
             f"clase_{c}": {"w": p.w.tolist(), "b": float(p.b)}
             for c, p in enumerate(model.perceptrones)
         }
 
-    with open(archivo_progreso, "w") as f:
-        json.dump({
-            "entrenando": False, 
-            "epoca_actual": args.epocas,
-            "epocas_total": args.epocas,
-            "clases": {}
-        }, f)
+    with open(archivo_progreso, "r", encoding="utf-8") as f:
+        ultimo = json.load(f)
+    ultimo["entrenando"] = False
+    with open(archivo_progreso, "w", encoding="utf-8") as f:
+        json.dump(ultimo, f)
 
     error_final = list(historiales.values())[0][-1]
     print(f"Tiempo de entrenamiento: {tiempo:.4f}s | Error final: {error_final:.1%}")
