@@ -1,3 +1,6 @@
+import json
+import os
+
 import numpy as np
 import time
 
@@ -18,7 +21,7 @@ class Perceptron:
     def predecir_score(self, x):
         return np.dot(self.w, x) + self.b
 
-    def entrenar_perceptron(self, x, y):
+    def entrenar_perceptron(self, x, y, archivo_progreso = None, nombre_clase="clase_0"):
         historial_error = []
         historial_pesos = []
         inicio = time.perf_counter()
@@ -44,6 +47,29 @@ class Perceptron:
                 "b":float(self.b),
                 "epoca": epoca +1
             })
+
+            if archivo_progreso is not None:
+                progreso = {
+                    "epoca_actual": epoca +1,
+                    "epocas_total": self.epocas,
+                    "entrenando": True,
+                    "clases": {
+                        "errores": historial_error.copy(),
+                        "pesos": [
+                            {
+                                "epoca": s["epoca"],
+                                "w": s["w"].tolist(),
+                                "b": s["b"]
+                            }
+                            for s in historial_pesos
+                        ]
+                    }
+                }
+            
+            ruta_temp = archivo_progreso + ".tmp"
+            with open(ruta_temp, "w", encoding="utf-8") as f:
+                json.dump(progreso, f)
+            os.replace(ruta_temp, archivo_progreso)
     
         tiempo_total = time.perf_counter() - inicio
         return historial_error,  historial_pesos, tiempo_total
